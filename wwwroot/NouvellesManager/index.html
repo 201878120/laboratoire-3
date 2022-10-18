@@ -40,6 +40,19 @@
 
             <div class="scrollContainer">
                 <div id="nouvellesList">
+                    <div class="nouvelleLayout nouvelleRow">
+                        <div class="nouvelleTitle">Ceci est un titre tutoriel</div>
+                        <span class="nouvelleInfoBoxLeft">
+                            Publiée le 18 Octobre 2022 à 15:28
+                        </span>
+                        <span class="nouvelleInfoBoxRight">
+                            Économie 
+                            <div class="cmd editCmd fa fa-pencil-square" nouvelleid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip"></div>
+                            <div class="cmd deleteCmd fa fa-window-close" nouvelleid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip"></div>
+                        </span>
+                        <div class="nouvelleImageBox"><img class='nouvelleImage' src="https://images.bfmtv.com/ut0xHNoVQgTBecycVyFsRKO0gqE=/0x39:768x471/285x0/images/Colette-Michel-regle-au-minimum-l-un-des-radiateurs-de-son-appartement-le-25-octobre-2021-a-Bar-le-Duc-dans-la-Meuse-1154315.jpg"></div>
+                        <div class="nouvelleTexte">L'Allemagne connait un boom des ventes de radiateurs électriques sans précédent. En cause, la crainte de voir l'approvisionnement en gaz réduit, voire arrêté, cet hiver. Un phénomène qui pourrait aussi impacter les foyers français. C'est une autre conséquence de la guerre en Ukraine. Avec la baisse de la livraison de gaz en provenance de Russie, l'Allemagne connaît un boom des ventes de radiateurs sans précédent en période estivale. Les ventes ont déjà augmenté d'un tiers au premier semestre. Le phénomène s'explique par le conflit entre la Russie et l'Ukraine ainsi que par la hausse du prix du gaz. Mais c'est aussi la crainte de voir le robinet du gaz russe fermé d'ici à cet hiver qui motive les Allemands. D'autant que Moscou a déjà réduit son approvisionnement gazier en Europe. Effrayés à l'idée de ne pouvoir se chauffer correctement à la fin de l'année, les foyers prennent donc d'assaut les supermarchés qui commercialisent ces chauffages électriques d'appoint.</div>
+                    </div>
                     <!-- filled programmatically-->
                 </div>
             </div>
@@ -48,16 +61,21 @@
                 <div id="nouvelleDlg">
                     <form id="nouvelleForm">
                         <input type="hidden" id="Id_input" value="0">
+                        <input type="hidden" id="Date_input" value="-1">
 
                         <label for="title_input">Titre</label>
                         <input type="text" id="title_input" class="form-control" required invalidMessage="Obligatoire">
 
-                        <label for="url_input">Hyperlien</label>
+                        <label for="category_input">Catégorie</label>
+                        <input type="text" id="category_input" class="form-control" required
+                            invalidMessage="Obligatoire">
+
+                        <label for="url_input">Hyperlien de l'image</label>
                         <input type="url" id="url_input" class="form-control URL" required
                             invalidMessage="Lien invalide">
 
-                        <label for="category_input">Catégorie</label>
-                        <input type="text" id="category_input" class="form-control" required
+                        <label for="text_input">Texte de l'article</label>
+                        <input type="text" id="text_input" class="form-control" required
                             invalidMessage="Obligatoire">
                     </form>
                 </div>
@@ -74,6 +92,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
         <script src="js/customValidation.js"></script>
         <script src="js/api.js"></script>
+        <script src="js/date.js"></script>
         <script defer>
             const periodicRefreshPeriod = 10;
             let holdCheckETag = false;
@@ -103,45 +122,54 @@
                         selectedCategory = $("#searchCategory").val();
                         let searchTitle = $("#searchTitle").val();
                         if (selectedCategory != "")
-                            queryString += "&Category=" + selectedCategory;
+                            queryString += "&Categorie=" + selectedCategory;
                         if (searchTitle != "")
-                            queryString += "&Title=*" + searchTitle + "*";
+                            queryString += "&Titre=*" + searchTitle + "*";
                     }
                     return queryString;
                 }
                 GET_ALL(refreshNouvellesList, error, prepareQueryString());
-                GET_ALL(refreshCategoryList, error, "?fields=Category");
+                GET_ALL(refreshCategoryList, error, "?fields=Categorie");
             }
             function refreshNouvellesList(nouvelles, ETag) {
                 function makeFavicon(url) {
                     let link = $(`<a href='${url}' target='_blank'></a>`)
-                    link.append($(`<img class='favicon' src="https://www.google.com/s2/favicons?domain=${url}&sz=48">`));
+                    link.append($(`<img class='favicon' src="${url}">`));
                     return link;
                 }
                 function insertIntoNouvelleList(nouvelle) {
-                    let catElem = $(`<div class="ellipsis">${nouvelle.Categorie}</div>`);
-                    let titElem = $(`<div  class="ellipsis">${nouvelle.Titre}</div>`);
-                    let editCmd = $(`<div class="cmd editCmd fa fa-pencil-square" nouvelleid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip">`);
-                    let deleteCmd = $(`<div class="cmd deleteCmd fa fa-window-close" nouvelleid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip">`);
-                    // THIS IS THE HTML I NEED TO MAKE FOR EACH UNIT OF A NOUVELLE
-                    let nouvelleRow = $("<div class='bookmarkLayout bookmarkRow'>");
-                    nouvelleRow.append(catElem);
-                    nouvelleRow.append(makeFavicon(nouvelle.Url));
-                    nouvelleRow.append(titElem);
-                    nouvelleRow.append(editCmd);
-                    nouvelleRow.append(deleteCmd);
+                    nouvelleRow = $(`<div class="nouvelleLayout nouvelleRow">`);
+                    
+                    let element = $(`<div class="nouvelleTitle">${nouvelle.Titre}</div>`);
+                    nouvelleRow.append(element);
+
+                    element = $(`<span class="nouvelleInfoBoxLeft">${convertToFrenchDate(nouvelle.Date)}</span>`);
+                    nouvelleRow.append(element);
+
+                    element = $(`<span class="nouvelleInfoBoxRight">${nouvelle.Categorie} </span>`);
+                    element.append(`<div class="cmd editCmd fa fa-pencil-square" nouvelleid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip"></div> `)
+                    element.append(`<div class="cmd deleteCmd fa fa-window-close" nouvelleid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip"></div>`)
+                    nouvelleRow.append(element);
+
+                    element = $(`<div class="nouvelleImageBox"><img class='nouvelleImage' src="${nouvelle.ImageUrl}"></div>`);
+                    nouvelleRow.append(element);
+
+                    element = $(`<div class="nouvelleTexte">${nouvelle.Texte}</div>`);
+                    nouvelleRow.append(element);
+
                     $("#nouvellesList").append(nouvelleRow);
                 }
                 currentETag = ETag;
                 previousScrollPosition = $(".scrollContainer").scrollTop();
                 $("#nouvellesList").empty();
                 let currentCategorie = "";
+                let orderedNouvelles = [];
                 for (let nouvelle of nouvelles) {
-                    if (nouvelle.Categorie !== currentCategorie)
-                        currentCategorie = nouvelle.Categorie;
-                    else
-                        nouvelle.Categorie = "";
-                        insertIntoNouvelleList(nouvelle);
+                    orderedNouvelles.push(nouvelle);
+                }
+                orderedNouvelles.sort(function(a,b){return b.Date-a.Date});
+                for (let nouvelle of orderedNouvelles) {
+                    insertIntoNouvelleList(nouvelle);
                 }
                 $(".scrollContainer").scrollTop(previousScrollPosition);
                 $(".editCmd").click(e => { editNouvelle(e) });
@@ -169,7 +197,8 @@
                 $("#searchCategory").empty();
                 $("#searchCategory").append("<option value=''>Toutes les catégories</option>");
                 for (let item of categories) {
-                    let category = item.Category;
+                    console.log(item);
+                    let category = item.Categorie;
                     let selected = (selectedCategory == category ? " selected " : "");
                     $("#searchCategory").append(`<option value='${category}' ${selected}>${category}</option>`);
                 }
@@ -229,7 +258,7 @@
                 holdCheckETag = true;
                 createMode = true;
                 resetNouvelleForm()
-                $("#nouvelleDlg").dialog('option', 'title', 'Ajout de favori');
+                $("#nouvelleDlg").dialog('option', 'title', `Ajout d'une nouvelle`);
                 $("#nouvelleDlgOkBtn").text("Ajouter");
                 $("#nouvelleDlg").dialog('open');
             }
@@ -238,7 +267,7 @@
                 createMode = false;
                 GET_ID(e.target.getAttribute("nouvelleid"), nouvelleToForm, error);
                 holdCheckETag = true;
-                $("#nouvelleDlg").dialog('option', 'title', 'Modification de favori');
+                $("#nouvelleDlg").dialog('option', 'title', `Modification d'une nouvelle`);
                 $("#nouvelleDlgOkBtn").text("Modifier");
                 $("#nouvelleDlg").dialog('open');
             }
@@ -248,7 +277,7 @@
                 GET_ID(
                     nouvelleIdToDelete,
                     nouvelle => {
-                        $("#confirmationMessage").html("Voulez-vous vraiment effacer la nouvelle <b>" + nouvelle.Titre + "</b>?")
+                        $("#confirmationMessage").html("Voulez-vous vraiment effacer cette nouvelle <b>" + nouvelle.Titre + "</b>?")
                     },
                     error
                 );
@@ -260,13 +289,25 @@
 
             function resetNouvelleForm() {
                 $("#Id_input").val("0");
+                $("#Date_input").val("-1");
                 $("#title_input").val("");
                 $("#url_input").val("");
                 $("#category_input").val("");
+                $("#text_input").val("");
             }
             function nouvelleFromForm() {
                 if ($("#nouvelleForm")[0].checkValidity()) {
-                    let nouvelle = { Id: parseInt($("#Id_input").val()), Titre: $("#title_input").val(), ImageUrl: $("#url_input").val(), Categorie: $("#category_input").val() };
+                    let d = parseInt($("#Date_input").val());
+                    if (d < 0) {d=Date.now();}
+                    console.log(d);
+                    let nouvelle = { 
+                        Id: parseInt($("#Id_input").val()), 
+                        Titre: $("#title_input").val(), 
+                        ImageUrl: $("#url_input").val(), 
+                        Categorie: $("#category_input").val(), 
+                        Texte: $("#text_input").val(),
+                        Date: d
+                    };
                     return nouvelle;
                 } else {
                     $("#nouvelleForm")[0].reportValidity()
@@ -275,9 +316,11 @@
             }
             function nouvelleToForm(nouvelle) {
                 $("#Id_input").val(nouvelle.Id);
+                $("#Date_input").val(nouvelle.Date);
                 $("#title_input").val(nouvelle.Titre);
                 $("#url_input").val(nouvelle.ImageUrl);
                 $("#category_input").val(nouvelle.Categorie);
+                $("#text_input").val(nouvelle.Texte);
             }
             /*function newBookmark() {
                 holdCheckETag = true;

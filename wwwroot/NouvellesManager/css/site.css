@@ -83,6 +83,47 @@ body {
     background-color: rgb(195, 255, 255);
 }
 
+.nouvelleLayout {
+    align-items: center;
+    border-radius: 8px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
+.nouvelleRow:hover {
+    background-color: rgb(195, 255, 255);
+}
+.nouvelleRow:not(:hover) {
+    background-color: rgb(245, 255, 255);
+    font-size: 0px;
+}
+.nouvelleImageBox {
+    background-color: aqua;
+    margin: 8px;
+}
+.nouvelleImage {
+    width: 100%;
+    max-width:100%;
+    max-height:100%;
+}
+.nouvelleInfoBoxLeft {
+    text-align: left;
+    font-size: 16px;
+    font-style:italic;
+}
+.nouvelleInfoBoxRight {
+    float: right;
+    text-align: right;
+    font-size: 16px;
+    font-style:italic;
+}
+.nouvelleTitle {
+    font-size: 20px;
+    color:rgb(55, 55, 55);
+    font-weight: bold;
+    text-align: center;
+}
+
 .cmd {
     cursor: pointer;
     font-size: 30px !important;
