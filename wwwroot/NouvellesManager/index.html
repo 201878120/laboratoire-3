@@ -18,9 +18,9 @@
             <div class="headerPanel">
                 <div class="headerLayout">
                     <img src="favicon.ico" alt="" data-toggle="tooltip"
-                        title="Gestionnaire de favori - Auteur Nicolas Chourot - Collège Lionel-Groulx">
-                    <span class="header">Gestionnaire de Favoris </span>
-                    <span class="cmd fa fa-plus-square" id="newBookmarkCmd" title="Ajouter un favori"
+                        title="Gestionnaire de nouvelles - Auteur Samuel Proulx - Collège Lionel-Groulx">
+                    <span class="header">Gestionnaire de Nouvelles </span>
+                    <span class="cmd fa fa-plus-square" id="newBookmarkCmd" title="Publier une nouvelle"
                         data-toggle="tooltip"></span>
                     <span class="cmd fa fa-search" title="Afficher/masquer la barre de recherche"
                         data-toggle="tooltip"></span>
@@ -92,8 +92,60 @@
             function checkETag(ETag) {
                 if (!holdCheckETag && ETag != currentETag) {
                     currentETag = ETag;
-                    getBookmarksList();
+                    getNouvellesList();
                 }
+            }
+
+            function getNouvellesList() {
+                function prepareQueryString() {
+                    let queryString = "?sort=Date";
+                    if (!hideSearchBar) {
+                        selectedCategory = $("#searchCategory").val();
+                        let searchTitle = $("#searchTitle").val();
+                        if (selectedCategory != "")
+                            queryString += "&Category=" + selectedCategory;
+                        if (searchTitle != "")
+                            queryString += "&Title=*" + searchTitle + "*";
+                    }
+                    return queryString;
+                }
+                GET_ALL(refreshNouvellesList, error, prepareQueryString());
+                GET_ALL(refreshCategoryList, error, "?fields=Category");
+            }
+            function refreshNouvellesList(nouvelles, ETag) {
+                function makeFavicon(url) {
+                    let link = $(`<a href='${url}' target='_blank'></a>`)
+                    link.append($(`<img class='favicon' src="https://www.google.com/s2/favicons?domain=${url}&sz=48">`));
+                    return link;
+                }
+                function insertIntoNouvelleList(nouvelle) {
+                    let catElem = $(`<div class="ellipsis">${nouvelle.Category}</div>`);
+                    let titElem = $(`<div  class="ellipsis">${nouvelle.Title}</div>`);
+                    let editCmd = $(`<div class="cmd editCmd fa fa-pencil-square" bookmarkid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip">`);
+                    let deleteCmd = $(`<div class="cmd deleteCmd fa fa-window-close" bookmarkid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip">`);
+                    let bookmarkRow = $("<div class='bookmarkLayout bookmarkRow'>");
+                    bookmarkRow.append(catElem);
+                    bookmarkRow.append(makeFavicon(nouvelle.Url));
+                    bookmarkRow.append(titElem);
+                    bookmarkRow.append(editCmd);
+                    bookmarkRow.append(deleteCmd);
+                    $("#bookmarksList").append(bookmarkRow);
+                }
+                currentETag = ETag;
+                previousScrollPosition = $(".scrollContainer").scrollTop();
+                $("#bookmarksList").empty();
+                let currentCategory = "";
+                for (let bookmark of bookmarks) {
+                    if (bookmark.Category !== currentCategory)
+                        currentCategory = bookmark.Category;
+                    else
+                        bookmark.Category = "";
+                    insertIntoBookmarkList(bookmark);
+                }
+                $(".scrollContainer").scrollTop(previousScrollPosition);
+                $(".editCmd").click(e => { editBookmark(e) });
+                $(".deleteCmd").click(e => { deleteBookmark(e) });
+                $('[data-toggle="tooltip"]').tooltip();
             }
 
             function getBookmarksList() {
