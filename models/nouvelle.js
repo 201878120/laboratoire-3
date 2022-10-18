@@ -1,6 +1,6 @@
 const Model = require('./model');
 module.exports =
-    class Bookmark extends Model {
+    class Nouvelle extends Model {
         constructor(categorie, titre, texte, imageurl, date) {
             super();
             this.Categorie = categorie !== undefined ? categorie : "";

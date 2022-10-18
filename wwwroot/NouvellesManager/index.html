@@ -20,7 +20,7 @@
                     <img src="favicon.ico" alt="" data-toggle="tooltip"
                         title="Gestionnaire de nouvelles - Auteur Samuel Proulx - Collège Lionel-Groulx">
                     <span class="header">Gestionnaire de Nouvelles </span>
-                    <span class="cmd fa fa-plus-square" id="newBookmarkCmd" title="Publier une nouvelle"
+                    <span class="cmd fa fa-plus-square" id="newNouvelleCmd" title="Publier une nouvelle"
                         data-toggle="tooltip"></span>
                     <span class="cmd fa fa-search" title="Afficher/masquer la barre de recherche"
                         data-toggle="tooltip"></span>
@@ -39,14 +39,14 @@
             </div>
 
             <div class="scrollContainer">
-                <div id="bookmarksList">
+                <div id="nouvellesList">
                     <!-- filled programmatically-->
                 </div>
             </div>
             <!-- Dialogs containers-->
             <div>
-                <div id="bookmarkDlg">
-                    <form id="bookmakForm">
+                <div id="nouvelleDlg">
+                    <form id="nouvelleForm">
                         <input type="hidden" id="Id_input" value="0">
 
                         <label for="title_input">Titre</label>
@@ -82,7 +82,7 @@
             let searchCategory = "";
             let searchTitle = "";
             let hideSearchBar = true;
-            let bookmarkIdToDelete = 0; // used by confirmDeleteDlg
+            let nouvelleIdToDelete = 0; // used by confirmDeleteDlg
             let selectedCategory = "";
             let previousScrollPosition = 0;
             init_UI();
@@ -119,36 +119,37 @@
                     return link;
                 }
                 function insertIntoNouvelleList(nouvelle) {
-                    let catElem = $(`<div class="ellipsis">${nouvelle.Category}</div>`);
-                    let titElem = $(`<div  class="ellipsis">${nouvelle.Title}</div>`);
-                    let editCmd = $(`<div class="cmd editCmd fa fa-pencil-square" bookmarkid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip">`);
-                    let deleteCmd = $(`<div class="cmd deleteCmd fa fa-window-close" bookmarkid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip">`);
-                    let bookmarkRow = $("<div class='bookmarkLayout bookmarkRow'>");
-                    bookmarkRow.append(catElem);
-                    bookmarkRow.append(makeFavicon(nouvelle.Url));
-                    bookmarkRow.append(titElem);
-                    bookmarkRow.append(editCmd);
-                    bookmarkRow.append(deleteCmd);
-                    $("#bookmarksList").append(bookmarkRow);
+                    let catElem = $(`<div class="ellipsis">${nouvelle.Categorie}</div>`);
+                    let titElem = $(`<div  class="ellipsis">${nouvelle.Titre}</div>`);
+                    let editCmd = $(`<div class="cmd editCmd fa fa-pencil-square" nouvelleid="${nouvelle.Id}" title="Editer ${nouvelle.Titre}" data-toggle="tooltip">`);
+                    let deleteCmd = $(`<div class="cmd deleteCmd fa fa-window-close" nouvelleid="${nouvelle.Id}" title="Effacer ${nouvelle.Titre}" data-toggle="tooltip">`);
+                    // THIS IS THE HTML I NEED TO MAKE FOR EACH UNIT OF A NOUVELLE
+                    let nouvelleRow = $("<div class='bookmarkLayout bookmarkRow'>");
+                    nouvelleRow.append(catElem);
+                    nouvelleRow.append(makeFavicon(nouvelle.Url));
+                    nouvelleRow.append(titElem);
+                    nouvelleRow.append(editCmd);
+                    nouvelleRow.append(deleteCmd);
+                    $("#nouvellesList").append(nouvelleRow);
                 }
                 currentETag = ETag;
                 previousScrollPosition = $(".scrollContainer").scrollTop();
-                $("#bookmarksList").empty();
-                let currentCategory = "";
-                for (let bookmark of bookmarks) {
-                    if (bookmark.Category !== currentCategory)
-                        currentCategory = bookmark.Category;
+                $("#nouvellesList").empty();
+                let currentCategorie = "";
+                for (let nouvelle of nouvelles) {
+                    if (nouvelle.Categorie !== currentCategorie)
+                        currentCategorie = nouvelle.Categorie;
                     else
-                        bookmark.Category = "";
-                    insertIntoBookmarkList(bookmark);
+                        nouvelle.Categorie = "";
+                        insertIntoNouvelleList(nouvelle);
                 }
                 $(".scrollContainer").scrollTop(previousScrollPosition);
-                $(".editCmd").click(e => { editBookmark(e) });
-                $(".deleteCmd").click(e => { deleteBookmark(e) });
+                $(".editCmd").click(e => { editNouvelle(e) });
+                $(".deleteCmd").click(e => { deleteNouvelle(e) });
                 $('[data-toggle="tooltip"]').tooltip();
             }
 
-            function getBookmarksList() {
+            /*function getBookmarksList() {
                 function prepareQueryString() {
                     let queryString = "?sort=Category&sort=Title";
                     if (!hideSearchBar) {
@@ -163,7 +164,7 @@
                 }
                 GET_ALL(refreshBookmarksList, error, prepareQueryString());
                 GET_ALL(refreshCategoryList, error, "?fields=Category");
-            }
+            }*/
             function refreshCategoryList(categories) {
                 $("#searchCategory").empty();
                 $("#searchCategory").append("<option value=''>Toutes les catégories</option>");
@@ -173,7 +174,7 @@
                     $("#searchCategory").append(`<option value='${category}' ${selected}>${category}</option>`);
                 }
             }
-            function refreshBookmarksList(bookmarks, ETag) {
+            /*function refreshBookmarksList(bookmarks, ETag) {
                 function makeFavicon(url) {
                     let link = $(`<a href='${url}' target='_blank'></a>`)
                     link.append($(`<img class='favicon' src="https://www.google.com/s2/favicons?domain=${url}&sz=48">`));
@@ -190,11 +191,11 @@
                     bookmarkRow.append(titElem);
                     bookmarkRow.append(editCmd);
                     bookmarkRow.append(deleteCmd);
-                    $("#bookmarksList").append(bookmarkRow);
+                    $("#nouvellesList").append(bookmarkRow);
                 }
                 currentETag = ETag;
                 previousScrollPosition = $(".scrollContainer").scrollTop();
-                $("#bookmarksList").empty();
+                $("#nouvellesList").empty();
                 let currentCategory = "";
                 for (let bookmark of bookmarks) {
                     if (bookmark.Category !== currentCategory)
@@ -207,34 +208,78 @@
                 $(".editCmd").click(e => { editBookmark(e) });
                 $(".deleteCmd").click(e => { deleteBookmark(e) });
                 $('[data-toggle="tooltip"]').tooltip();
-            }
+            }*/
 
             function error(status) {
                 let errorMessage = "";
                 switch (status) {
-                    case 0:
-                        errorMessage = "Le service ne répond pas";
-                        break;
+                    case 0: errorMessage = "Le service ne répond pas"; break;
                     case 400:
-                    case 422:
-                        errorMessage = "Requête invalide";
-                        break;
-                    case 404:
-                        errorMessage = "Service ou données introuvables";
-                        break;
-                    case 409:
-                        errorMessage = "Conflits de données: Hyperlien existe déjà";
-                        break;
-                    case 500:
-                        errorMessage = "Erreur interne du service";
-                        break;
+                    case 422: errorMessage = "Requête invalide"; break;
+                    case 404: errorMessage = "Service ou données introuvables"; break;
+                    case 409: errorMessage = "Conflits de données: Hyperlien existe déjà"; break;
+                    case 500: errorMessage = "Erreur interne du service"; break;
                     default: break;
                 }
                 $("#errorMessage").text(errorMessage);
                 $("#errorDlg").dialog('open');
             }
 
-            function newBookmark() {
+            function newNouvelle() {
+                holdCheckETag = true;
+                createMode = true;
+                resetNouvelleForm()
+                $("#nouvelleDlg").dialog('option', 'title', 'Ajout de favori');
+                $("#nouvelleDlgOkBtn").text("Ajouter");
+                $("#nouvelleDlg").dialog('open');
+            }
+            function editNouvelle(e) {
+                holdCheckETag = true;
+                createMode = false;
+                GET_ID(e.target.getAttribute("nouvelleid"), nouvelleToForm, error);
+                holdCheckETag = true;
+                $("#nouvelleDlg").dialog('option', 'title', 'Modification de favori');
+                $("#nouvelleDlgOkBtn").text("Modifier");
+                $("#nouvelleDlg").dialog('open');
+            }
+            function deleteNouvelle(e) {
+                holdCheckETag = true;
+                nouvelleIdToDelete = e.target.getAttribute("nouvelleid")
+                GET_ID(
+                    nouvelleIdToDelete,
+                    nouvelle => {
+                        $("#confirmationMessage").html("Voulez-vous vraiment effacer la nouvelle <b>" + nouvelle.Titre + "</b>?")
+                    },
+                    error
+                );
+                holdCheckETag = true;
+                $("#confirmDlg").dialog('option', 'title', 'Retrait de nouvelle...');
+                $("#confirmDeleteDlgOkBtn").text("Effacer");
+                $("#confirmDeleteDlg").dialog('open');
+            }
+
+            function resetNouvelleForm() {
+                $("#Id_input").val("0");
+                $("#title_input").val("");
+                $("#url_input").val("");
+                $("#category_input").val("");
+            }
+            function nouvelleFromForm() {
+                if ($("#nouvelleForm")[0].checkValidity()) {
+                    let nouvelle = { Id: parseInt($("#Id_input").val()), Titre: $("#title_input").val(), ImageUrl: $("#url_input").val(), Categorie: $("#category_input").val() };
+                    return nouvelle;
+                } else {
+                    $("#nouvelleForm")[0].reportValidity()
+                }
+                return false;
+            }
+            function nouvelleToForm(nouvelle) {
+                $("#Id_input").val(nouvelle.Id);
+                $("#title_input").val(nouvelle.Titre);
+                $("#url_input").val(nouvelle.ImageUrl);
+                $("#category_input").val(nouvelle.Categorie);
+            }
+            /*function newBookmark() {
                 holdCheckETag = true;
                 createMode = true;
                 resetBookmarkForm()
@@ -287,24 +332,24 @@
                 $("#title_input").val(bookmark.Title);
                 $("#url_input").val(bookmark.Url);
                 $("#category_input").val(bookmark.Category);
-            }
+            }*/
 
             function init_UI() {
-                $("#newBookmarkCmd").click(newBookmark)
-                $("#searchCategory").change(() => { selectedCategory = $("#searchCategory").val(); getBookmarksList(); })
+                $("#newNouvelleCmd").click(newNouvelle)
+                $("#searchCategory").change(() => { selectedCategory = $("#searchCategory").val(); getNouvellesList(); })
 
-                $(".fa-refresh").click(e => { getBookmarksList() })
+                $(".fa-refresh").click(e => { getNouvellesList() })
                 $(".fa-search").click(e => {
                     hideSearchBar = !hideSearchBar;
                     if (hideSearchBar)
                         $("#searchBar").hide();
                     else
                         $("#searchBar").show();
-                    getBookmarksList();
+                        getNouvellesList();
                 })
 
-                $("#bookmarkDlg").dialog({
-                    title: "Nouveau favori",
+                $("#nouvelleDlg").dialog({
+                    title: "Écrire une nouvelle",
                     autoOpen: false,
                     modal: true,
                     show: { effect: 'fade', speed: 400 },
@@ -317,16 +362,16 @@
                     maxHeight: 440,
                     position: { my: "top", at: "top", of: window },
                     buttons: [{
-                        id: "bookmarkDlgOkBtn",
-                        text: "Title will be changed dynamically",
+                        id: "nouvelleDlgOkBtn",
+                        text: "Titre will be changed dynamically",
                         click: function () {
-                            let bookmark = bookmarkFromForm();
-                            if (bookmark) {
+                            let nouvelle = nouvelleFromForm();
+                            if (nouvelle) {
                                 if (createMode)
-                                    POST(bookmark, refreshBookmarksList, error);
+                                    POST(nouvelle, refreshNouvellesList, error);
                                 else
-                                    PUT(bookmark, refreshBookmarksList, error);
-                                resetBookmarkForm();
+                                    PUT(nouvelle, refreshNouvellesList, error);
+                                resetNouvelleForm();
                                 holdCheckETag = false;
                                 $(this).dialog("close");
                             }
@@ -355,9 +400,9 @@
                         text: "Oui",
                         click: function () {
                             holdCheckETag = false;
-                            if (bookmarkIdToDelete)
-                                DELETE(bookmarkIdToDelete, refreshBookmarksList, error);
-                            bookmarkIdToDelete = 0;
+                            if (nouvelleIdToDelete)
+                                DELETE(nouvelleIdToDelete, refreshNouvellesList, error);
+                                nouvelleIdToDelete = 0;
                             $(this).dialog("close");
                         }
                     },
@@ -365,7 +410,7 @@
                         text: "Annuler",
                         click: function () {
                             holdCheckETag = false;
-                            bookmarkIdToDelete = 0;
+                            nouvelleIdToDelete = 0;
                             $(this).dialog("close");
                         }
                     }]
@@ -384,7 +429,7 @@
                         text: "Fermer",
                         click: function () {
                             holdCheckETag = false;
-                            bookmarkIdToDelete = 0;
+                            nouvelleIdToDelete = 0;
                             $(this).dialog("close");
                         }
                     }]

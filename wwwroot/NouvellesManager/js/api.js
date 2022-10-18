@@ -1,4 +1,4 @@
-const apiBaseURL = "http://localhost:5000/api/bookmarks";
+const apiBaseURL = "http://localhost:5000/api/nouvelles";
 
 function HEAD(successCallBack, errorCallBack) {
     $.ajax({
@@ -36,12 +36,12 @@ function POST(data, successCallBack, errorCallBack) {
         error: function (jqXHR) { errorCallBack(jqXHR.status) }
     });
 }
-function PUT(bookmark, successCallBack, errorCallBack) {
+function PUT(nouvelle, successCallBack, errorCallBack) {
     $.ajax({
-        url: apiBaseURL + "/" + bookmark.Id,
+        url: apiBaseURL + "/" + nouvelle.Id,
         type: 'PUT',
         contentType: 'application/json',
-        data: JSON.stringify(bookmark),
+        data: JSON.stringify(nouvelle),
         success: () => { successCallBack() },
         error: function (jqXHR) { errorCallBack(jqXHR.status) }
     });
